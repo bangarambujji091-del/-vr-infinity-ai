@@ -53,8 +53,12 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 <div class="btnrow"><button class="btn" id="generate">ప్రాంప్ట్ తయారు చేయి ✨</button><button class="btn secondary" id="clear">క్లియర్</button></div>
 <div class="output" id="output" aria-live="polite"></div>
 <div class="btnrow" id="outputActions" style="display:none"><button class="btn secondary" id="copy">కాపీ చేయి</button><button class="btn secondary" id="download">TXTగా సేవ్</button></div>
+<div class="btnrow" id="generatorActions" style="display:none"><button class="btn" id="openFlow">🎬 Google Flow తెరువు</button></div>
+<p class="note" id="flowNote" style="display:none">Flow తెరిచిన తర్వాత కాపీ చేసిన ప్రాంప్ట్‌ను అక్కడ paste చేసి వీడియో/చిత్రం తయారు చేయి. వీడియో సిద్ధమైనప్పుడు Flowలో కనిపించే Download ఎంపికను ఉపయోగించు. ఈ వెబ్‌సైట్ నేరుగా వీడియోను తయారు చేయదు.</p>
 <p class="note">గమనిక: ఇది మొదటి ఉచిత UI ప్రోటోటైప్. ప్రస్తుతం ప్రాంప్ట్‌లను టెంప్లేట్‌తో తయారు చేస్తుంది; నిజమైన AI వీడియో/ఫోటో జనరేషన్, లాగిన్, క్లౌడ్ స్టోరేజ్ ఇంకా కనెక్ట్ కాలేదు.</p>
 </section>
+<div class="section-title"><h3>💰 ఆదాయం కోసం తదుపరి అడుగులు</h3></div>
+<div class="card"><p style="margin:0 0 10px">1. తెలుగు కథలు, ఉపయోగకరమైన ప్రాంప్ట్‌లు వంటి ఒరిజినల్ కంటెంట్‌ను క్రమం తప్పకుండా జోడించు.</p><p style="margin:0 0 10px">2. సైట్‌ను ఇతరులతో పంచుకొని నిజమైన సందర్శకులను పెంచు.</p><p style="margin:0 0 10px">3. సైట్‌కు అవసరమైన Privacy Policy, About, Contact పేజీలు సిద్ధం చేయి.</p><p style="margin:0">4. అర్హతలు నెరవేరిన తర్వాత మాత్రమే ప్రకటనల కోసం దరఖాస్తు చేయి. ఆమోదం, ఆదాయం హామీ కాదు.</p></div>
 <div class="section-title"><h3>తర్వాత జోడించగల ఫీచర్లు</h3></div>
 <div class="card"><p style="margin:0 0 10px">🎙️ తెలుగు వాయిస్ జనరేషన్</p><p style="margin:0 0 10px">🧩 సీన్-బై-సీన్ స్టోరీబోర్డ్</p><p style="margin:0 0 10px">🗂️ సేవ్ చేసిన ప్రాంప్ట్‌లు</p><p style="margin:0">📱 Android APK ప్యాకేజింగ్</p></div>
 <footer>VR Infinity AI • మీ ఇద్దరి పేర్లతో 💜</footer>
@@ -69,7 +73,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 let mode='story', lastOutput='';
 const titles={story:'తెలుగు స్టోరీ మేకర్',video:'AI వీడియో ప్రాంప్ట్ మేకర్',photo:'AI ఫోటో ప్రాంప్ట్ మేకర్',ideas:'క్రియేటివ్ ఐడియా మేకర్'};
 const placeholders={story:'కథలో ఏమి జరగాలి? పాత్రలు, ప్రదేశం, మలుపు రాయండి...',video:'ఏ సీన్‌ను వీడియోగా చేయాలి? పాత్రలు, యాక్షన్, కెమెరా వివరాలు...',photo:'ఎలాంటి చిత్రం కావాలి? పాత్ర, దుస్తులు, లైటింగ్, బ్యాక్‌గ్రౌండ్...',ideas:'ఏ రకమైన కథ లేదా వీడియో కోసం ఐడియా కావాలి?'};
-function setMode(m){mode=m;document.getElementById('formTitle').textContent=titles[m];document.getElementById('idea').placeholder=placeholders[m];document.querySelectorAll('.tile').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));document.querySelectorAll('[data-mode-nav]').forEach(b=>b.classList.toggle('active',b.dataset.modeNav===m));document.getElementById('output').style.display='none';document.getElementById('outputActions').style.display='none';}
+function setMode(m){mode=m;document.getElementById('formTitle').textContent=titles[m];document.getElementById('idea').placeholder=placeholders[m];document.querySelectorAll('.tile').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));document.querySelectorAll('[data-mode-nav]').forEach(b=>b.classList.toggle('active',b.dataset.modeNav===m));document.getElementById('output').style.display='none';document.getElementById('outputActions').style.display='none';document.getElementById('generatorActions').style.display='none';document.getElementById('flowNote').style.display='none';}
 document.querySelectorAll('.tile').forEach(b=>b.addEventListener('click',()=>{setMode(b.dataset.mode);document.getElementById('creator').scrollIntoView({behavior:'smooth',block:'start'});}));
 document.querySelectorAll('[data-mode-nav]').forEach(b=>b.addEventListener('click',()=>{setMode(b.dataset.modeNav);document.getElementById('creator').scrollIntoView({behavior:'smooth',block:'start'});}));
 document.querySelector('[data-scroll="top"]').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
@@ -82,8 +86,10 @@ document.getElementById('generate').addEventListener('click',()=>{
  else result=`క్రియేటివ్ ఐడియా\n\nవిషయం: ${idea}\nకేటగిరీ: ${genre}\nవిజువల్ స్టైల్: ${style}\n\n1. బలమైన ప్రారంభ హుక్‌తో మొదలుపెట్టు.\n2. ఒక ప్రత్యేకమైన పాత్ర లేదా రహస్యం జోడించు.\n3. మధ్యలో ఆశ్చర్యకరమైన మలుపు ఉంచు.\n4. చివర్లో గుర్తుండిపోయే సీన్‌తో ముగించు.\n5. అవసరమైతే దీన్ని చిన్న వీడియో సిరీస్‌గా విస్తరించు.`;
  lastOutput=result;
  const out=document.getElementById('output');out.textContent=result;out.style.display='block';document.getElementById('outputActions').style.display='flex';
+ const canUseFlow=(mode==='video'||mode==='photo');document.getElementById('generatorActions').style.display=canUseFlow?'flex':'none';document.getElementById('flowNote').style.display=canUseFlow?'block':'none';
 });
-document.getElementById('clear').addEventListener('click',()=>{document.getElementById('idea').value='';document.getElementById('output').style.display='none';document.getElementById('outputActions').style.display='none';lastOutput='';});
+document.getElementById('clear').addEventListener('click',()=>{document.getElementById('idea').value='';document.getElementById('output').style.display='none';document.getElementById('outputActions').style.display='none';document.getElementById('generatorActions').style.display='none';document.getElementById('flowNote').style.display='none';lastOutput='';});
+document.getElementById('openFlow').addEventListener('click',()=>{window.open('https://labs.google/fx/tools/flow','_blank','noopener');});
 document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lastOutput);document.getElementById('copy').textContent='కాపీ అయింది ✓';setTimeout(()=>document.getElementById('copy').textContent='కాపీ చేయి',1600)}catch(e){alert('కాపీ చేయడానికి ఫలితాన్ని long-press చేసి Copy ఎంచుకోండి.')}});
 document.getElementById('download').addEventListener('click',()=>{const blob=new Blob([lastOutput],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='VR-Infinity-AI-prompt.txt';a.click();URL.revokeObjectURL(a.href);});
 </script>
