@@ -93,4 +93,9 @@ document.getElementById('openFlow').addEventListener('click',()=>{window.open('h
 document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lastOutput);document.getElementById('copy').textContent='కాపీ అయింది ✓';setTimeout(()=>document.getElementById('copy').textContent='కాపీ చేయి',1600)}catch(e){alert('కాపీ చేయడానికి ఫలితాన్ని long-press చేసి Copy ఎంచుకోండి.')}});
 document.getElementById('download').addEventListener('click',()=>{const blob=new Blob([lastOutput],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='VR-Infinity-AI-prompt.txt';a.click();URL.revokeObjectURL(a.href);});
 </script>
+<footer style="text-align:center;padding:24px 12px;margin-top:24px;font-size:14px;">
+  <a href="about.html" style="color:#d9a7ff;margin:8px;">About Us</a>
+  <a href="privacy-policy.html" style="color:#d9a7ff;margin:8px;">Privacy Policy</a>
+  <a href="contact.html" style="color:#d9a7ff;margin:8px;">Contact Us</a>
+</footer>
 </body></html>
